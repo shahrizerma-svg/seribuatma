@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Panel Ulasan — Admin</title>
+<style>
+  body { background:#16291f; color:#f6f0e2; font-family: system-ui, sans-serif; margin:0; padding:24px; }
+  h1 { font-size:20px; margin:0 0 18px; }
+  .login { display:grid; gap:10px; max-width:320px; }
+  input { background:#f6f0e2; border:0; border-radius:6px; color:#211d19; font-size:15px; padding:10px 12px; }
+  button { background:#b8543a; border:0; border-radius:6px; color:#fff; cursor:pointer; font-size:13px; padding:10px 14px; }
+  button:hover { background:#8f3f2a; }
+  button.danger { background:#7a1f1f; }
+  button.danger:hover { background:#5c1616; }
+  .toolbar { align-items:center; display:flex; gap:12px; justify-content:space-between; margin-bottom:18px; }
+  .review { background:rgba(246,240,226,.06); border:1px solid rgba(246,240,226,.15); border-radius:10px; margin-bottom:12px; padding:14px 16px; }
+  .review .meta { color:#a9c2ab; font-size:12px; margin-bottom:6px; }
+  .review p { margin:0 0 10px; }
+  .status { color:#f0c3ab; font-size:13px; margin:10px 0; min-height:1.2em; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+  <h1>Panel Moderasi Ulasan</h1>
+
+  <div id="login" class="login">
+    <input id="admin-key" type="password" placeholder="Kunci admin" />
+    <button id="login-btn">Log masuk</button>
+    <p class="status" id="login-status"></p>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="toolbar">
+      <span id="count-label"></span>
+      <button class="danger" id="clear-all-btn">Padam SEMUA ulasan</button>
+    </div>
+    <div id="review-list"></div>
+    <p class="status" id="panel-status"></p>
+  </div>
+
+  <script>
+    let adminKey = '';
+    const loginBox = document.querySelector('#login');
+    const panel = document.querySelector('#panel');
+    const loginStatus = document.querySelector('#login-status');
+    const panelStatus = document.querySelector('#panel-status');
+    const listEl = document.querySelector('#review-list');
+    const countLabel = document.querySelector('#count-label');
+    const escapeHtml = value => (value || '').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#039;', '"':'&quot;' }[c]));
+
+    async function loadReviews() {
+      const res = await fetch('/api/reviews');
+      const reviews = await res.json();
+      countLabel.textContent = reviews.length + ' ulasan';
+      listEl.innerHTML = reviews.length ? reviews.map(r => `
+        <article class="review" data-id="${r.id}">
+          <div class="meta">${escapeHtml(r.name)} · ${new Date(r.createdAt).toLocaleString('ms-MY')}</div>
+          <p>${escapeHtml(r.review)}</p>
+          <button class="danger review-delete" data-id="${r.id}">Padam ulasan ini</button>
+        </article>`).join('') : '<p>Tiada ulasan.</p>';
+    }
+
+    document.querySelector('#login-btn').addEventListener('click', async () => {
+      const key = document.querySelector('#admin-key').value.trim();
+      if (!key) return;
+      loginStatus.textContent = 'Mengesahkan…';
+      const res = await fetch('/api/verify-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminKey: key })
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result.ok) {
+        loginStatus.textContent = 'Kunci admin salah.';
+        return;
+      }
+      adminKey = key;
+      loginBox.classList.add('hidden');
+      panel.classList.remove('hidden');
+      await loadReviews();
+    });
+
+    listEl.addEventListener('click', async event => {
+      const btn = event.target.closest('.review-delete');
+      if (!btn) return;
+      if (!confirm('Padam ulasan ini?')) return;
+      const id = btn.dataset.id;
+      panelStatus.textContent = 'Memadam…';
+      try {
+        const res = await fetch('/api/reviews', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, adminKey })
+        });
+        if (!res.ok) throw new Error();
+        panelStatus.textContent = 'Ulasan dipadam.';
+        await loadReviews();
+      } catch {
+        panelStatus.textContent = 'Gagal memadam. Cuba semula.';
+      }
+    });
+
+    document.querySelector('#clear-all-btn').addEventListener('click', async () => {
+      if (!confirm('PADAM SEMUA ulasan? Tindakan ini tidak boleh diundur.')) return;
+      panelStatus.textContent = 'Memadam semua…';
+      try {
+        const res = await fetch('/api/reviews', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clearAll: true, adminKey })
+        });
+        if (!res.ok) throw new Error();
+        panelStatus.textContent = 'Semua ulasan dipadam.';
+        await loadReviews();
+      } catch {
+        panelStatus.textContent = 'Gagal memadam. Cuba semula.';
+      }
+    });
+  </script>
+</body>
+</html>
