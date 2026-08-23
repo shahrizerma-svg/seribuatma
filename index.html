@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A reader site for Seribu Atma Buat Arjuna, a novel by Silvia Stella." />
+  <title>Seribu Atma Buat Arjuna — Novel</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top">
+      <span class="seal" aria-hidden="true">S</span>
+      <span class="brand-text">Seribu Atma Buat Arjuna<span>Novel oleh Silvia Stella</span></span>
+    </a>
+    <p class="progress-label" id="progress-label"></p>
+  </header>
+
+  <div class="shell">
+    <nav class="spine" aria-label="Navigasi bab" id="chapter-spine">
+      <ul class="spine-list" id="chapter-nav" role="tablist"></ul>
+    </nav>
+
+    <main id="top">
+      <section class="hero">
+        <span class="seal" aria-hidden="true">S</span>
+        <p class="eyebrow">Bab 1 &ndash; 3 kini boleh dibaca</p>
+        <h1>Seribu Atma<br>Buat Arjuna</h1>
+        <p class="subtitle">Sebuah kisah tentang rahsia keluarga, cinta yang tersimpan, dan janji yang tak boleh dimungkiri.</p>
+        <button class="primary" id="start-reading">Mula membaca <span aria-hidden="true">↓</span></button>
+      </section>
+
+      <section class="reader" aria-label="Novel chapters" id="chapters"></section>
+
+      <section class="reviews" id="reviews">
+        <div class="reviews-head">
+          <p class="eyebrow">Tamat bab yang diterbitkan</p>
+          <h2>Tinggalkan ulasan</h2>
+          <p>Tolong tinggalkan ulasan yang boleh membantu saya membina penulisan saya. Terima kasih.</p>
+          <p class="review-count" id="review-count"></p>
+        </div>
+        <div class="reviews-grid">
+          <form id="review-form">
+            <label for="reviewer-name">Nama anda</label>
+            <input id="reviewer-name" name="name" type="text" maxlength="50" placeholder="Nama untuk dipaparkan" required />
+            <label for="review-text">Ulasan anda</label>
+            <textarea id="review-text" name="review" rows="7" maxlength="1000" placeholder="Kongsikan pendapat anda tentang novel ini…" required></textarea>
+            <button class="primary" type="submit">Hantar ulasan</button>
+            <p class="form-note">Ulasan anda akan dipaparkan kepada semua pembaca.</p>
+            <p class="form-status" id="review-status" aria-live="polite"></p>
+          </form>
+          <div class="review-list-wrap">
+            <h3>Ulasan pembaca</h3>
+            <div class="review-list" id="review-list" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>© <span id="year"></span> Silvia Stella · Dibuat untuk pembaca</footer>
+  <script src="chapter-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

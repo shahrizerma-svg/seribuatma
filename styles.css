@@ -1,0 +1,310 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --ink: #211d19;
+  --muted: #5c6b5e;
+  --paper: #f6f0e2;
+  --paper-deep: #efe6d1;
+  --sage: #dde3d2;
+  --forest: #1f3d2f;
+  --forest-deep: #16291f;
+  --terracotta: #b8543a;
+  --terracotta-deep: #8f3f2a;
+  --seal-gold: #a97d35;
+  --line: #ddd2b3;
+  --cream-text: #f6f0e2;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+a { color: inherit; }
+button { font-family: inherit; }
+
+/* ---------- Seal (signature element) ---------- */
+.seal {
+  align-items: center;
+  background: radial-gradient(circle at 32% 28%, #cf6a4a, var(--terracotta) 55%, var(--terracotta-deep) 100%);
+  border-radius: 50%;
+  box-shadow: inset 0 -3px 5px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.25), 0 2px 4px rgba(0,0,0,.2);
+  color: #fbe9de;
+  display: flex;
+  flex-shrink: 0;
+  font-family: "Fraunces", serif;
+  font-weight: 600;
+  justify-content: center;
+  position: relative;
+}
+.seal::after {
+  content: "";
+  border-radius: 50%;
+  inset: 3px;
+  position: absolute;
+  border: 1px dashed rgba(251,233,222,.45);
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  align-items: center;
+  background: rgba(246,240,226,.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 16px clamp(18px, 5vw, 56px);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.brand { align-items: center; display: flex; gap: 12px; text-decoration: none; }
+.brand .seal { font-size: 15px; height: 34px; width: 34px; }
+.brand .brand-text { color: var(--forest); font-family: "Fraunces", serif; font-size: 19px; font-style: italic; font-weight: 600; line-height: 1.2; }
+.brand .brand-text span { color: var(--muted); display: block; font-family: "DM Mono", monospace; font-size: 9px; font-style: normal; font-weight: 400; letter-spacing: .1em; margin-top: 3px; text-transform: uppercase; }
+.progress-label { color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .08em; text-align: right; text-transform: uppercase; white-space: nowrap; }
+.progress-label strong { color: var(--terracotta-deep); }
+
+/* ---------- Layout shell: spine + reader ---------- */
+.shell {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+}
+@media (max-width: 860px) {
+  .shell { grid-template-columns: 1fr; }
+}
+
+/* Spine nav (desktop: vertical left rail) */
+.spine {
+  border-right: 1px solid var(--line);
+  padding: 28px 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+}
+.spine::-webkit-scrollbar { width: 0; }
+.spine-list { display: flex; flex-direction: column; gap: 6px; list-style: none; margin: 0; padding: 0 14px; }
+.spine-item button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 6px;
+  width: 100%;
+}
+.spine-item .spine-seal { font-size: 12px; height: 26px; width: 26px; opacity: .55; transition: opacity .25s, transform .25s; }
+.spine-item .spine-label { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); }
+.spine-item button[aria-selected="true"] .spine-seal { opacity: 1; transform: scale(1.12); }
+.spine-item button[aria-selected="true"] .spine-label { color: var(--terracotta-deep); font-weight: 600; }
+.spine-item button:hover .spine-seal { opacity: .85; }
+
+@media (max-width: 860px) {
+  .spine {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    height: auto;
+    padding: 12px 0;
+    position: sticky;
+    top: 66px;
+    background: rgba(246,240,226,.96);
+    backdrop-filter: blur(8px);
+  }
+  .spine-list { flex-direction: row; gap: 4px; overflow-x: auto; padding: 0 14px; -webkit-overflow-scrolling: touch; }
+  .spine-item button { flex-direction: row; min-width: 44px; min-height: 44px; padding: 6px 12px; white-space: nowrap; }
+  .spine-item .spine-label { writing-mode: horizontal-tb; transform: none; font-size: 10px; }
+  .spine-item .spine-seal { height: 22px; width: 22px; font-size: 10px; }
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  background:
+    radial-gradient(600px 300px at 85% -10%, rgba(184,84,58,.14), transparent 65%),
+    var(--sage);
+  padding: clamp(56px, 10vw, 120px) max(22px, calc((100vw - 780px)/2)) clamp(48px, 8vw, 90px);
+  position: relative;
+  text-align: center;
+}
+.hero .seal { font-size: 24px; height: 58px; margin: 0 auto 22px; width: 58px; }
+.eyebrow {
+  color: var(--forest);
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+}
+h1, h2, h3 { font-family: "Fraunces", serif; line-height: 1.1; }
+h1 {
+  font-size: clamp(42px, 8vw, 78px);
+  font-style: italic;
+  font-weight: 600;
+  margin: 0;
+}
+.subtitle { color: #3a4b3d; font-size: clamp(16px, 2vw, 20px); margin: 20px auto 30px; max-width: 480px; }
+.primary {
+  background: var(--forest);
+  border: 0;
+  border-radius: 3px;
+  color: var(--cream-text);
+  cursor: pointer;
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  min-height: 46px;
+  padding: 14px 24px;
+  text-transform: uppercase;
+  transition: background .2s, transform .2s;
+}
+.primary:hover { background: var(--terracotta-deep); transform: translateY(-2px); }
+.primary:disabled { cursor: not-allowed; opacity: .55; transform: none; }
+
+/* ---------- Reader ---------- */
+.reader { margin: 0 auto; max-width: 700px; padding: clamp(48px, 8vw, 90px) 22px 20px; }
+.chapter { border-bottom: 1px solid var(--line); margin-bottom: 64px; padding: 0 0 64px; }
+.chapter:last-child { border-bottom: 0; }
+.chapter[hidden] { display: none; }
+.chapter-number {
+  align-items: center;
+  color: var(--terracotta-deep);
+  display: flex;
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  gap: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.chapter-number::before { content: ""; background: var(--terracotta); border-radius: 50%; display: inline-block; height: 6px; width: 6px; }
+.chapter h2 { font-size: clamp(32px, 5vw, 48px); font-style: italic; margin: 10px 0 32px; }
+.chapter p { margin: 0 0 22px; }
+.chapter p:first-of-type::first-letter {
+  color: var(--forest);
+  float: left;
+  font-family: "Fraunces", serif;
+  font-size: 72px;
+  font-style: italic;
+  line-height: .72;
+  margin: 10px 10px 0 0;
+}
+.chapter-end {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  gap: 10px;
+  justify-content: center;
+  letter-spacing: .1em;
+  margin-top: 36px;
+  text-transform: uppercase;
+}
+.chapter-end .seal { height: 18px; width: 18px; font-size: 9px; }
+
+/* ---------- Reviews (enlarged) ---------- */
+.reviews {
+  background: var(--forest-deep);
+  color: var(--cream-text);
+  padding: clamp(64px, 9vw, 110px) max(20px, calc((100vw - 1120px)/2));
+}
+.reviews-head { margin: 0 auto 48px; max-width: 640px; text-align: center; }
+.reviews-head .eyebrow { color: #a9c2ab; }
+.reviews-head h2 { font-size: clamp(34px, 5vw, 50px); font-style: italic; margin: 0 0 14px; }
+.reviews-head p { color: #cfd9cd; font-size: 17px; margin: 0; }
+.review-count { color: #e7c9a8; font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: .08em; margin-top: 12px; text-transform: uppercase; }
+
+.reviews-grid {
+  display: grid;
+  gap: 44px;
+  grid-template-columns: minmax(280px, 420px) 1fr;
+  margin: 0 auto;
+  max-width: 1120px;
+}
+@media (max-width: 900px) {
+  .reviews-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+form {
+  background: rgba(246,240,226,.05);
+  border: 1px solid rgba(246,240,226,.16);
+  border-radius: 14px;
+  display: grid;
+  gap: 14px;
+  padding: 28px;
+}
+label { color: #cfd9cd; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+input, textarea {
+  background: var(--paper);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  color: var(--ink);
+  font: 16px "Source Serif 4", serif;
+  min-height: 46px;
+  padding: 13px 14px;
+  resize: vertical;
+  width: 100%;
+}
+textarea { min-height: 150px; }
+input:focus, textarea:focus, button:focus-visible { border-color: var(--terracotta); outline: 3px solid rgba(184,84,58,.35); outline-offset: 1px; }
+.form-note, .form-status { font-size: 13px; line-height: 1.5; margin: 4px 0 0; }
+.form-note { color: #a9b6a7; }
+.form-status { color: #f0c3ab; min-height: 1.4em; }
+
+.review-list-wrap h3 {
+  color: #f6f0e2;
+  font-size: 22px;
+  font-style: italic;
+  margin: 0 0 20px;
+}
+.review-list { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 640px) { .review-list { grid-template-columns: 1fr; } }
+.review {
+  background: rgba(246,240,226,.06);
+  border: 1px solid rgba(246,240,226,.14);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+.review-top { align-items: center; display: flex; gap: 10px; margin-bottom: 10px; }
+.review-top .seal { font-size: 12px; height: 30px; width: 30px; }
+.review p.review-text { color: #ecf1e9; font-size: 16px; line-height: 1.6; margin: 0; }
+.review cite {
+  color: #a9c2ab;
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  font-style: normal;
+  text-transform: uppercase;
+}
+.empty { color: #a9c2ab; font-size: 15px; grid-column: 1 / -1; }
+
+footer {
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: .05em;
+  padding: 26px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  body { font-size: 17px; }
+  .site-header { padding: 14px 16px; }
+  .progress-label { display: none; }
+}
