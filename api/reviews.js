@@ -5,6 +5,7 @@ const KEY = 'novel:reviews';
 const MAX_NAME_LEN = 50;
 const MAX_REVIEW_LEN = 1000;
 const MAX_STORED = 200;
+const ADMIN_KEY = process.env.REVIEWS_ADMIN_KEY;
 
 function clean(value, max) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
@@ -14,12 +15,15 @@ function parseBody(req) {
   return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
 }
 
+function isAdmin(body) {
+  return Boolean(ADMIN_KEY) && body?.adminKey === ADMIN_KEY;
+}
+
 export default async function handler(req, res) {
   try {
     const reviews = (await kv.get(KEY)) || [];
 
     if (req.method === 'GET') {
-      // Never leak editToken to the public list
       const publicReviews = reviews.map(({ editToken, ...rest }) => rest);
       res.status(200).json(publicReviews);
       return;
@@ -42,8 +46,6 @@ export default async function handler(req, res) {
       const trimmed = reviews.slice(0, MAX_STORED);
       await kv.set(KEY, trimmed);
 
-      // Only the creator's response includes the editToken — this is their
-      // one chance to receive it; it is never returned by GET.
       res.status(201).json({ id, editToken });
       return;
     }
@@ -55,13 +57,17 @@ export default async function handler(req, res) {
       const name = clean(body?.name, MAX_NAME_LEN);
       const review = clean(body?.review, MAX_REVIEW_LEN);
 
-      if (!id || !editToken || !name || !review) {
+      if (!id || !name || !review) {
         res.status(400).json({ error: 'Data tidak lengkap.' });
         return;
       }
 
       const idx = reviews.findIndex(r => r.id === id);
-      if (idx === -1 || reviews[idx].editToken !== editToken) {
+      if (idx === -1) {
+        res.status(404).json({ error: 'Ulasan tidak dijumpai.' });
+        return;
+      }
+      if (!isAdmin(body) && reviews[idx].editToken !== editToken) {
         res.status(403).json({ error: 'Tidak dibenarkan mengedit ulasan ini.' });
         return;
       }
@@ -74,16 +80,28 @@ export default async function handler(req, res) {
 
     if (req.method === 'DELETE') {
       const body = parseBody(req);
+
+      // Admin bulk clear — wipes every review
+      if (isAdmin(body) && body?.clearAll === true) {
+        await kv.set(KEY, []);
+        res.status(200).json({ ok: true, cleared: reviews.length });
+        return;
+      }
+
       const id = body?.id;
       const editToken = body?.editToken;
 
-      if (!id || !editToken) {
+      if (!id) {
         res.status(400).json({ error: 'Data tidak lengkap.' });
         return;
       }
 
       const idx = reviews.findIndex(r => r.id === id);
-      if (idx === -1 || reviews[idx].editToken !== editToken) {
+      if (idx === -1) {
+        res.status(404).json({ error: 'Ulasan tidak dijumpai.' });
+        return;
+      }
+      if (!isAdmin(body) && reviews[idx].editToken !== editToken) {
         res.status(403).json({ error: 'Tidak dibenarkan memadam ulasan ini.' });
         return;
       }
