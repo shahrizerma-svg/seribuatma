@@ -308,3 +308,28 @@ footer {
   .site-header { padding: 14px 16px; }
   .progress-label { display: none; }
 }
+
+/* ---------- Review edit/delete controls ---------- */
+.review-actions { display: flex; gap: 10px; margin-top: 12px; }
+.review-edit, .review-delete, .review-save, .review-cancel {
+  background: transparent;
+  border: 1px solid rgba(246,240,226,.3);
+  border-radius: 5px;
+  color: #cfd9cd;
+  cursor: pointer;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: .05em;
+  min-height: 32px;
+  padding: 6px 12px;
+  text-transform: uppercase;
+}
+.review-edit:hover, .review-save:hover { border-color: var(--terracotta); color: #f6f0e2; }
+.review-delete:hover { border-color: #c96a54; color: #f5b7a4; }
+.review-edit-form { display: grid; gap: 10px; }
+.review-edit-form label { color: #cfd9cd; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.review-edit-form input, .review-edit-form textarea {
+  background: var(--paper); border: 2px solid transparent; border-radius: 6px; color: var(--ink);
+  font: 15px "Source Serif 4", serif; padding: 10px 12px; width: 100%;
+}
+.review-edit-status { color: #f0c3ab; font-size: 12px; margin: 0; min-height: 1.2em; }
